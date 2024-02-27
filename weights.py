@@ -18,7 +18,6 @@ def plot_weights(model_files: list, model_names: list):
         gaussian_models.append(gaussian_model)
 
     # get weights
-
     weight_data = []
 
     for model in gaussian_models:
@@ -26,17 +25,17 @@ def plot_weights(model_files: list, model_names: list):
         np.random.shuffle(weights)
         weight_data.append(weights)
 
+    # find number of splats for smallest model
     length = min([len(w) for w in weight_data])
 
     # collect in dataframe
-
-    dict = {}
+    data_dict = {}
     for name, weights in zip(model_names, weight_data):
-        dict[name] = weights[:length]
-    df = pd.DataFrame(dict)
+        data_dict[name] = weights[:length]
+    df = pd.DataFrame(data_dict)
 
     sns.kdeplot(df)
-
+    plt.xlabel("Sum of absolute values of non DC weights.")
     plt.show()
 
 
