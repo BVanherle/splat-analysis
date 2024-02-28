@@ -5,17 +5,11 @@ import seaborn as sns
 from matplotlib import pyplot as plt
 
 from gaussian_model import GaussianModel
+from utils import load_models, plot_kde
 
 
 def plot_weights(model_files: list, model_names: list):
-    gaussian_models = []
-
-    # load models
-    for model_file in model_files:
-        gaussian_model = GaussianModel(sh_degree=3)
-        gaussian_model.load_ply(model_file)
-        gaussian_model.requires_grad_(False)
-        gaussian_models.append(gaussian_model)
+    gaussian_models = load_models(model_files)
 
     # get weights
     weight_data = []
@@ -25,26 +19,19 @@ def plot_weights(model_files: list, model_names: list):
         np.random.shuffle(weights)
         weight_data.append(weights)
 
-    # find number of splats for smallest model
-    length = min([len(w) for w in weight_data])
-
-    # collect in dataframe
-    data_dict = {}
-    for name, weights in zip(model_names, weight_data):
-        data_dict[name] = weights[:length]
-    df = pd.DataFrame(data_dict)
-
-    sns.kdeplot(df)
-    plt.xlabel("Sum of absolute values of non DC weights.")
-    plt.show()
+    plot_kde(weight_data, model_names, xlabel="Sum of absolute values of non DC weights.")
 
 
 if __name__ == "__main__":
     files = [
-        "data/2eca5280-3/point_cloud/iteration_30000/point_cloud.ply",
-        "data/2eb21784-a/point_cloud/iteration_30000/point_cloud.ply"
+        "data/scenes/bicycle.ply",
+        "data/scenes/counter.ply",
+        "data/scenes/drjohnson.ply",
+        "data/scenes/kitchen.ply",
+        "data/scenes/train.ply",
+        "data/scenes/truck.ply",
     ]
 
-    names = ["plant", "vase"]
+    names = ["bicycle", "counter", "drjohnson", "kitchen", "train", "truck"]
 
-    plot_weights(files, names)
+plot_weights(files, names)
