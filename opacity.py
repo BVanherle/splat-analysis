@@ -1,25 +1,21 @@
 import numpy as np
 import torch
-import pandas as pd
-import seaborn as sns
-from matplotlib import pyplot as plt
 
-from gaussian_model import GaussianModel
 from utils import load_models, plot_kde
 
 
-def plot_weights(model_files: list, model_names: list):
+def plot_opacity(model_files: list, model_names: list):
     gaussian_models = load_models(model_files)
 
-    # get weights
+    # get opacity values
     weight_data = []
 
     for model in gaussian_models:
-        weights = torch.abs(model._features_rest).sum(-1).sum(-1).numpy()
+        weights = torch.squeeze(model.get_opacity()).numpy()
         np.random.shuffle(weights)
         weight_data.append(weights)
 
-    plot_kde(weight_data, model_names, xlabel="Sum of absolute values of non DC weights.")
+    plot_kde(weight_data, model_names, xlabel="Splat opacity values")
 
 
 if __name__ == "__main__":
@@ -34,4 +30,4 @@ if __name__ == "__main__":
 
     names = ["bicycle", "counter", "drjohnson", "kitchen", "train", "truck"]
 
-    plot_weights(files, names)
+    plot_opacity(files, names)

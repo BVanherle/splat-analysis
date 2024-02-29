@@ -15,6 +15,7 @@ from torch import nn
 from plyfile import PlyData
 
 
+
 class GaussianModel(torch.nn.Module):
     def __init__(self, sh_degree: int):
         super().__init__()
@@ -34,6 +35,16 @@ class GaussianModel(torch.nn.Module):
         self.spatial_lr_scale = 0
 
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
+
+        self.setup_functions()
+
+    def setup_functions(self):
+        self.scaling_activation = torch.exp
+        self.scaling_inverse_activation = torch.log
+
+        self.opacity_activation = torch.sigmoid
+
+        self.rotation_activation = torch.nn.functional.normalize
 
     def load_ply(self, path):
         plydata = PlyData.read(path)
@@ -77,6 +88,23 @@ class GaussianModel(torch.nn.Module):
         self._rotation = nn.Parameter(torch.tensor(rots, dtype=torch.float, device=self.device))
 
         self.active_sh_degree = self.max_sh_degree
+
+    def get_scaling(self):
+        return self.scaling_activation(self._scaling)
+
+    def get_rotation(self):
+        return self.rotation_activation(self._rotation)
+
+    def get_xyz(self):
+        return self._xyz
+
+    def get_features(self):
+        features_dc = self._features_dc
+        features_rest = self._features_rest
+        return torch.cat((features_dc, features_rest), dim=1)
+
+    def get_opacity(self):
+        return self.opacity_activation(self._opacity)
 
 
 if __name__ == "__main__":

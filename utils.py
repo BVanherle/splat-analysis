@@ -34,6 +34,6 @@ def plot_kde(datasets, labels, xlabel):
         data_dict[name] = data[:length]
     df = pd.DataFrame(data_dict)
 
-    sns.violinplot(df)
+    sns.boxplot(df, showfliers=False)
     plt.xlabel(xlabel)
     plt.show()
